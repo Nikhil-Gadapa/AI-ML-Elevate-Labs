@@ -1,0 +1,825 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+/kaggle/input/d/hardikgarg03/titanic/gender_submission.csv
+/kaggle/input/d/heptapod/titanic/train_and_test2.csv
+/kaggle/input/d/rahulsah06/titanic/train.csv
+/kaggle/input/d/rahulsah06/titanic/test.csv
+/kaggle/input/d/rahulsah06/titanic/gender_submission.csv
+/kaggle/input/d/azeembootwala/titanic/train_data.csv
+/kaggle/input/d/azeembootwala/titanic/test_data.csv
+/kaggle/input/titanic3/titanic3.xls
+/kaggle/input/titanic-machine-learning-from-disaster/train.csv
+/kaggle/input/titanic-machine-learning-from-disaster/test.csv
+/kaggle/input/titanic-data-set/train.csv
+/kaggle/input/test-file/tested.csv
+/kaggle/input/titanic/train.csv
+/kaggle/input/titanic/test.csv
+/kaggle/input/titanic/gender_submission.csv
+/kaggle/input/titanic-extended/train.csv
+/kaggle/input/titanic-extended/full.csv
+/kaggle/input/titanic-extended/test.csv
+/kaggle/input/titanic-dataset/Titanic-Dataset.csv
+/kaggle/input/titanic1/titanic.csv
+import pandas as pd
+train=pd.read_csv('/kaggle/input/titanic/train.csv')
+test=pd.read_csv('/kaggle/input/titanic/test.csv')
+gen_sub=pd.read_csv('/kaggle/input/titanic/gender_submission.csv')
+train
+PassengerId	Survived	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	0	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	1	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	0	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...	...
+886	887	0	2	Montvila, Rev. Juozas	male	27.0	0	0	211536	13.0000	NaN	S
+887	888	1	1	Graham, Miss. Margaret Edith	female	19.0	0	0	112053	30.0000	B42	S
+888	889	0	3	Johnston, Miss. Catherine Helen "Carrie"	female	NaN	1	2	W./C. 6607	23.4500	NaN	S
+889	890	1	1	Behr, Mr. Karl Howell	male	26.0	0	0	111369	30.0000	C148	C
+890	891	0	3	Dooley, Mr. Patrick	male	32.0	0	0	370376	7.7500	NaN	Q
+891 rows × 12 columns
+
+test
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	892	3	Kelly, Mr. James	male	34.5	0	0	330911	7.8292	NaN	Q
+1	893	3	Wilkes, Mrs. James (Ellen Needs)	female	47.0	1	0	363272	7.0000	NaN	S
+2	894	2	Myles, Mr. Thomas Francis	male	62.0	0	0	240276	9.6875	NaN	Q
+3	895	3	Wirz, Mr. Albert	male	27.0	0	0	315154	8.6625	NaN	S
+4	896	3	Hirvonen, Mrs. Alexander (Helga E Lindqvist)	female	22.0	1	1	3101298	12.2875	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...
+413	1305	3	Spector, Mr. Woolf	male	NaN	0	0	A.5. 3236	8.0500	NaN	S
+414	1306	1	Oliva y Ocana, Dona. Fermina	female	39.0	0	0	PC 17758	108.9000	C105	C
+415	1307	3	Saether, Mr. Simon Sivertsen	male	38.5	0	0	SOTON/O.Q. 3101262	7.2500	NaN	S
+416	1308	3	Ware, Mr. Frederick	male	NaN	0	0	359309	8.0500	NaN	S
+417	1309	3	Peter, Master. Michael J	male	NaN	1	1	2668	22.3583	NaN	C
+418 rows × 11 columns
+
+p=test['PassengerId']
+gen_sub
+PassengerId	Survived
+0	892	0
+1	893	1
+2	894	0
+3	895	0
+4	896	1
+...	...	...
+413	1305	0
+414	1306	1
+415	1307	0
+416	1308	0
+417	1309	0
+418 rows × 2 columns
+
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+Y_train=train['Survived']
+Y_train
+0      0
+1      1
+2      1
+3      1
+4      0
+      ..
+886    0
+887    1
+888    0
+889    1
+890    0
+Name: Survived, Length: 891, dtype: int64
+Visuals for pre-analysis and concept refinement.
+Survival Rate Analysis
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+train["Survived"].value_counts().plot.pie(autopct="%1.1f%%", labels=["Not Survived", "Survived"], colors=["pink", "skyblue"],shadow=True)
+plt.title("Overall Survival Percentage")
+plt.ylabel("")  # Remove y-label for aesthetics
+plt.show()
+
+Inference:
+Approximately 38% passengers survived, while 62% did not, showing that more than half of the passengers perished in the Titanic disaster.
+
+# Bar Plot: Survival Rate by Class
+plt.figure(figsize=(8, 5))
+ax=sns.barplot(x=train["Pclass"], y=train["Survived"]*100,hue=train['Sex'],ci=None,palette="dark:#5A9_r")
+# Add value labels on top of bars
+for container in ax.containers:
+    ax.bar_label(container, fmt="%.1f%%", fontsize=9)  # Format as percentage
+plt.xlabel("Passenger Class",fontsize=12)
+plt.ylabel("Survival Rate %",fontsize=12)
+plt.title("Survival Rate %age by Passenger Class",fontsize=14)
+plt.xticks(fontsize=12)
+plt.show()
+
+Inference:
+Passengers in 1st class especially female, had a significantly higher survival rate compared to those in 2nd and 3rd class, indicating that passenger class influenced survival chances.
+
+# Violin Plot: Age Distribution among Survived & Not Survived
+sns.violinplot(x="Survived", y="Age", hue="Sex",data=train, palette="coolwarm", inner="quartile")
+plt.title("Age Distribution of Survived & Non-Survived Passengers")
+plt.xlabel('Survival')
+plt.show()
+
+Inference:
+Survivors were often younger and adults,especially among children, reflecting the "women and children first" policy during evacuation.
+
+Class & Fare Influence
+
+# Box Plot: Fare Distribution Across Passenger Classes
+sns.boxplot(x="Pclass", y="Fare", data=train, palette="pastel")
+plt.title("Fare Distribution Across Classes")
+plt.show()
+
+Inference:
+Higher-class passengers paid more fare. The fare distribution increases significantly from 3rd to 1st class, indicating a clear economic divide on board.
+
+# Swarm Plot: Fare vs Survival
+sns.swarmplot(x="Survived", y="Fare",hue="Pclass",data=train, palette="coolwarm")
+plt.title("Fare vs Survival")
+plt.xlabel('Survival')
+plt.show()
+
+Inference:
+Passengers who paid higher fares tended to survive more, again reflecting that first-class (high fare) passengers were prioritized.
+
+# Stacked Bar Chart: Survival by Embarkation
+embarked_survival = train.groupby("Embarked")["Survived"].value_counts(normalize=True).unstack()*100
+embarked_survival.plot(kind="bar", stacked=True, color=["grey", "yellow"])
+plt.xlabel("Embarkation Port")
+plt.ylabel("Proportion")
+plt.title("Survival Rate by Embarkation Port")
+plt.legend(["Not Survived", "Survived"])
+plt.show()
+
+Inference:
+Passengers embarking from Cherbourg (C) had the highest survival rate, and then Queenstown (Q) had the less. This may relate to class distribution by port.
+
+Correlation of features
+
+# Heatmap: Correlation of Survival with Other Features
+plt.figure(figsize=(8,6))
+sns.heatmap(train[["Survived", "Pclass", "Fare","Age"]].corr(), annot=True, cmap="flare", fmt=".2f")
+plt.title("Feature Correlation Heatmap")
+plt.show()
+
+Inference:
+Fare and Pclass have a strong negative correlation.
+Fare has a positive correlation with survival, while Pclass is negatively correlated, reinforcing earlier observations.
+
+Data Preprocessing
+train.drop(columns='Survived',axis=1,inplace=True)
+train
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...
+886	887	2	Montvila, Rev. Juozas	male	27.0	0	0	211536	13.0000	NaN	S
+887	888	1	Graham, Miss. Margaret Edith	female	19.0	0	0	112053	30.0000	B42	S
+888	889	3	Johnston, Miss. Catherine Helen "Carrie"	female	NaN	1	2	W./C. 6607	23.4500	NaN	S
+889	890	1	Behr, Mr. Karl Howell	male	26.0	0	0	111369	30.0000	C148	C
+890	891	3	Dooley, Mr. Patrick	male	32.0	0	0	370376	7.7500	NaN	Q
+891 rows × 11 columns
+
+combined = pd.concat([train, test], axis=0)
+combined
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...
+413	1305	3	Spector, Mr. Woolf	male	NaN	0	0	A.5. 3236	8.0500	NaN	S
+414	1306	1	Oliva y Ocana, Dona. Fermina	female	39.0	0	0	PC 17758	108.9000	C105	C
+415	1307	3	Saether, Mr. Simon Sivertsen	male	38.5	0	0	SOTON/O.Q. 3101262	7.2500	NaN	S
+416	1308	3	Ware, Mr. Frederick	male	NaN	0	0	359309	8.0500	NaN	S
+417	1309	3	Peter, Master. Michael J	male	NaN	1	1	2668	22.3583	NaN	C
+1309 rows × 11 columns
+
+# Reset index after merging
+combined.reset_index(drop=True, inplace=True)
+combined
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...
+1304	1305	3	Spector, Mr. Woolf	male	NaN	0	0	A.5. 3236	8.0500	NaN	S
+1305	1306	1	Oliva y Ocana, Dona. Fermina	female	39.0	0	0	PC 17758	108.9000	C105	C
+1306	1307	3	Saether, Mr. Simon Sivertsen	male	38.5	0	0	SOTON/O.Q. 3101262	7.2500	NaN	S
+1307	1308	3	Ware, Mr. Frederick	male	NaN	0	0	359309	8.0500	NaN	S
+1308	1309	3	Peter, Master. Michael J	male	NaN	1	1	2668	22.3583	NaN	C
+1309 rows × 11 columns
+
+combined.sample(10)
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+1169	1170	2	Ware, Mr. John James	male	30.0	1	0	CA 31352	21.0000	NaN	S
+3	4	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+363	364	3	Asim, Mr. Adola	male	35.0	0	0	SOTON/O.Q. 3101310	7.0500	NaN	S
+230	231	1	Harris, Mrs. Henry Birkhardt (Irene Wallach)	female	35.0	1	0	36973	83.4750	C83	S
+166	167	1	Chibnall, Mrs. (Edith Martha Bowerman)	female	NaN	0	1	113505	55.0000	E33	S
+1048	1049	3	Lundin, Miss. Olga Elida	female	23.0	0	0	347469	7.8542	NaN	S
+307	308	1	Penasco y Castellana, Mrs. Victor de Satode (M...	female	17.0	1	0	PC 17758	108.9000	C65	C
+1043	1044	3	Storey, Mr. Thomas	male	60.5	0	0	3701	NaN	NaN	S
+433	434	3	Kallio, Mr. Nikolai Erland	male	17.0	0	0	STON/O 2. 3101274	7.1250	NaN	S
+367	368	3	Moussa, Mrs. (Mantoura Boulos)	female	NaN	0	0	2626	7.2292	NaN	C
+combined.shape
+(1309, 11)
+combined.isnull().sum()
+PassengerId       0
+Pclass            0
+Name              0
+Sex               0
+Age             263
+SibSp             0
+Parch             0
+Ticket            0
+Fare              1
+Cabin          1014
+Embarked          2
+dtype: int64
+combined.describe()
+PassengerId	Pclass	Age	SibSp	Parch	Fare
+count	1309.000000	1309.000000	1046.000000	1309.000000	1309.000000	1308.000000
+mean	655.000000	2.294882	29.881138	0.498854	0.385027	33.295479
+std	378.020061	0.837836	14.413493	1.041658	0.865560	51.758668
+min	1.000000	1.000000	0.170000	0.000000	0.000000	0.000000
+25%	328.000000	2.000000	21.000000	0.000000	0.000000	7.895800
+50%	655.000000	3.000000	28.000000	0.000000	0.000000	14.454200
+75%	982.000000	3.000000	39.000000	1.000000	0.000000	31.275000
+max	1309.000000	3.000000	80.000000	8.000000	9.000000	512.329200
+combined.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1309 entries, 0 to 1308
+Data columns (total 11 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   PassengerId  1309 non-null   int64  
+ 1   Pclass       1309 non-null   int64  
+ 2   Name         1309 non-null   object 
+ 3   Sex          1309 non-null   object 
+ 4   Age          1046 non-null   float64
+ 5   SibSp        1309 non-null   int64  
+ 6   Parch        1309 non-null   int64  
+ 7   Ticket       1309 non-null   object 
+ 8   Fare         1308 non-null   float64
+ 9   Cabin        295 non-null    object 
+ 10  Embarked     1307 non-null   object 
+dtypes: float64(2), int64(4), object(5)
+memory usage: 112.6+ KB
+combined
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+...	...	...	...	...	...	...	...	...	...	...	...
+1304	1305	3	Spector, Mr. Woolf	male	NaN	0	0	A.5. 3236	8.0500	NaN	S
+1305	1306	1	Oliva y Ocana, Dona. Fermina	female	39.0	0	0	PC 17758	108.9000	C105	C
+1306	1307	3	Saether, Mr. Simon Sivertsen	male	38.5	0	0	SOTON/O.Q. 3101262	7.2500	NaN	S
+1307	1308	3	Ware, Mr. Frederick	male	NaN	0	0	359309	8.0500	NaN	S
+1308	1309	3	Peter, Master. Michael J	male	NaN	1	1	2668	22.3583	NaN	C
+1309 rows × 11 columns
+
+combined.nunique()
+PassengerId    1309
+Pclass            3
+Name           1307
+Sex               2
+Age              98
+SibSp             7
+Parch             8
+Ticket          929
+Fare            281
+Cabin           186
+Embarked          3
+dtype: int64
+combined.duplicated().sum()
+0
+combined.sample(2)
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+532	533	3	Elias, Mr. Joseph Jr	male	17.0	1	1	2690	7.2292	NaN	C
+850	851	3	Andersson, Master. Sigvard Harald Elias	male	4.0	4	2	347082	31.2750	NaN	S
+import matplotlib as plt 
+import seaborn as sns
+Feature Engineering
+combined=combined.copy()
+combined.loc[:,"family_count"]=combined.iloc[:, 5]+combined.iloc[:, 6] +1
+combined.drop(["PassengerId","Name","Cabin","SibSp","Parch","Ticket"],axis=1,inplace=True)
+combined
+Pclass	Sex	Age	Fare	Embarked	family_count
+0	3	male	22.0	7.2500	S	2
+1	1	female	38.0	71.2833	C	2
+2	3	female	26.0	7.9250	S	1
+3	1	female	35.0	53.1000	S	2
+4	3	male	35.0	8.0500	S	1
+...	...	...	...	...	...	...
+1304	3	male	NaN	8.0500	S	1
+1305	1	female	39.0	108.9000	C	1
+1306	3	male	38.5	7.2500	S	1
+1307	3	male	NaN	8.0500	S	1
+1308	3	male	NaN	22.3583	C	3
+1309 rows × 6 columns
+
+Handling null values
+combined.isnull().sum()
+Pclass            0
+Sex               0
+Age             263
+Fare              1
+Embarked          2
+family_count      0
+dtype: int64
+combined["Age"].skew()
+0.40767455974362266
+# Clearly we can see that age column is skewed and also has null values so, we will replace null by median
+imp=combined['Age'].median()
+combined['Age']=combined['Age'].fillna(imp)
+combined['Embarked'].value_counts()
+Embarked
+S    914
+C    270
+Q    123
+Name: count, dtype: int64
+combined['Embarked']=combined['Embarked'].fillna('S')
+combined['Fare'].skew()
+4.367709134122922
+combined['Fare']=combined['Fare'].fillna(combined['Fare'].median())
+combined.isnull().sum()
+Pclass          0
+Sex             0
+Age             0
+Fare            0
+Embarked        0
+family_count    0
+dtype: int64
+combined.sample(4)
+Pclass	Sex	Age	Fare	Embarked	family_count
+539	1	female	22.0	49.5000	C	3
+687	3	male	19.0	10.1708	S	1
+1047	1	female	29.0	221.7792	S	1
+374	3	female	3.0	21.0750	S	5
+Handling data types of columns
+combined.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1309 entries, 0 to 1308
+Data columns (total 6 columns):
+ #   Column        Non-Null Count  Dtype  
+---  ------        --------------  -----  
+ 0   Pclass        1309 non-null   int64  
+ 1   Sex           1309 non-null   object 
+ 2   Age           1309 non-null   float64
+ 3   Fare          1309 non-null   float64
+ 4   Embarked      1309 non-null   object 
+ 5   family_count  1309 non-null   int64  
+dtypes: float64(2), int64(2), object(2)
+memory usage: 61.5+ KB
+combined['Age'].value_counts().sort_index()
+Age
+0.17     1
+0.33     1
+0.42     1
+0.67     1
+0.75     3
+        ..
+70.50    1
+71.00    2
+74.00    1
+76.00    1
+80.00    1
+Name: count, Length: 98, dtype: int64
+combined['Age']=round(combined['Age']).astype('int')
+combined['Age'].value_counts().sort_index()
+Age
+0      3
+1     19
+2     12
+3      7
+4     10
+      ..
+70     3
+71     2
+74     1
+76     1
+80     1
+Name: count, Length: 73, dtype: int64
+combined['Fare']=combined['Fare'].round(4)
+combined
+Pclass	Sex	Age	Fare	Embarked	family_count
+0	3	male	22	7.2500	S	2
+1	1	female	38	71.2833	C	2
+2	3	female	26	7.9250	S	1
+3	1	female	35	53.1000	S	2
+4	3	male	35	8.0500	S	1
+...	...	...	...	...	...	...
+1304	3	male	28	8.0500	S	1
+1305	1	female	39	108.9000	C	1
+1306	3	male	38	7.2500	S	1
+1307	3	male	28	8.0500	S	1
+1308	3	male	28	22.3583	C	3
+1309 rows × 6 columns
+
+combined.nunique()
+Pclass            3
+Sex               2
+Age              73
+Fare            281
+Embarked          3
+family_count      9
+dtype: int64
+Making age groups
+combined['Age'].value_counts().sort_index()
+Age
+0      3
+1     19
+2     12
+3      7
+4     10
+      ..
+70     3
+71     2
+74     1
+76     1
+80     1
+Name: count, Length: 73, dtype: int64
+def categorize_age(age):
+    if age <= 4:
+        return "Baby"
+    elif age <= 12 and age>=5:
+        return "Child"
+    elif age>=13 and age <= 19:
+        return "Teen"
+    elif age>=20 and age <= 39:
+        return "Adult"
+    elif age >=40 and age <= 59:
+        return "Middle Age Adult"
+    else:
+        return "Senior Adult"
+
+combined["Age_group"] = combined["Age"].apply(categorize_age)
+combined["Age_group"].value_counts()
+Age_group
+Adult               839
+Middle Age Adult    205
+Teen                131
+Baby                 51
+Child                43
+Senior Adult         40
+Name: count, dtype: int64
+combined.pop("Age")
+0       22
+1       38
+2       26
+3       35
+4       35
+        ..
+1304    28
+1305    39
+1306    38
+1307    28
+1308    28
+Name: Age, Length: 1309, dtype: int64
+combined
+Pclass	Sex	Fare	Embarked	family_count	Age_group
+0	3	male	7.2500	S	2	Adult
+1	1	female	71.2833	C	2	Adult
+2	3	female	7.9250	S	1	Adult
+3	1	female	53.1000	S	2	Adult
+4	3	male	8.0500	S	1	Adult
+...	...	...	...	...	...	...
+1304	3	male	8.0500	S	1	Adult
+1305	1	female	108.9000	C	1	Adult
+1306	3	male	7.2500	S	1	Adult
+1307	3	male	8.0500	S	1	Adult
+1308	3	male	22.3583	C	3	Adult
+1309 rows × 6 columns
+
+Time to encode categorical columns
+Pclass-ordinal encoding
+Sex- Binary encoding
+Embarked- one hot encoding
+Age-group -ordinal
+from sklearn.preprocessing import OneHotEncoder,LabelEncoder, OrdinalEncoder
+Ohe=OneHotEncoder(drop='first',sparse_output=False)
+OE=OrdinalEncoder(categories=[[1,2,3],["Baby", "Child", "Teen", "Adult", "Middle Age Adult", "Senior Adult"]])
+from sklearn.compose import ColumnTransformer
+preprocessor=ColumnTransformer([("onehot_encoding",Ohe,["Embarked"]),
+                               ("ordinal_encoding",OE,["Pclass","Age_group"])],remainder="passthrough")
+combined_encoded=preprocessor.fit_transform(combined)
+combined_encoded=pd.DataFrame(combined_encoded,columns=preprocessor.get_feature_names_out())
+combined_encoded['Sex']=combined['Sex'].map({"male":0,"female":1})
+combined_encoded
+onehot_encoding__Embarked_Q	onehot_encoding__Embarked_S	ordinal_encoding__Pclass	ordinal_encoding__Age_group	remainder__Sex	remainder__Fare	remainder__family_count	Sex
+0	0.0	1.0	2.0	3.0	male	7.25	2	0
+1	0.0	0.0	0.0	3.0	female	71.2833	2	1
+2	0.0	1.0	2.0	3.0	female	7.925	1	1
+3	0.0	1.0	0.0	3.0	female	53.1	2	1
+4	0.0	1.0	2.0	3.0	male	8.05	1	0
+...	...	...	...	...	...	...	...	...
+1304	0.0	1.0	2.0	3.0	male	8.05	1	0
+1305	0.0	0.0	0.0	3.0	female	108.9	1	1
+1306	0.0	1.0	2.0	3.0	male	7.25	1	0
+1307	0.0	1.0	2.0	3.0	male	8.05	1	0
+1308	0.0	0.0	2.0	3.0	male	22.3583	3	0
+1309 rows × 8 columns
+
+combined_encoded.drop("remainder__Sex",axis=1,inplace=True)
+combined_encoded.rename(columns={"remainder__Fare":"Fare",	"remainder__family_count":"family_count"},inplace=True)
+combined_encoded
+onehot_encoding__Embarked_Q	onehot_encoding__Embarked_S	ordinal_encoding__Pclass	ordinal_encoding__Age_group	Fare	family_count	Sex
+0	0.0	1.0	2.0	3.0	7.25	2	0
+1	0.0	0.0	0.0	3.0	71.2833	2	1
+2	0.0	1.0	2.0	3.0	7.925	1	1
+3	0.0	1.0	0.0	3.0	53.1	2	1
+4	0.0	1.0	2.0	3.0	8.05	1	0
+...	...	...	...	...	...	...	...
+1304	0.0	1.0	2.0	3.0	8.05	1	0
+1305	0.0	0.0	0.0	3.0	108.9	1	1
+1306	0.0	1.0	2.0	3.0	7.25	1	0
+1307	0.0	1.0	2.0	3.0	8.05	1	0
+1308	0.0	0.0	2.0	3.0	22.3583	3	0
+1309 rows × 7 columns
+
+Feature Scaling
+from sklearn.preprocessing import StandardScaler
+scale=StandardScaler()
+scaler=ColumnTransformer([("scaling",scale,['Fare','family_count'])],remainder="passthrough")
+combined_scaled=scaler.fit_transform(combined_encoded)
+combined_scaled=pd.DataFrame(combined_scaled,columns=scaler.get_feature_names_out())
+combined_scaled
+scaling__Fare	scaling__family_count	remainder__onehot_encoding__Embarked_Q	remainder__onehot_encoding__Embarked_S	remainder__ordinal_encoding__Pclass	remainder__ordinal_encoding__Age_group	remainder__Sex
+0	-0.503291	0.073352	0.0	1.0	2.0	3.0	0
+1	0.734744	0.073352	0.0	0.0	0.0	3.0	1
+2	-0.49024	-0.558346	0.0	1.0	2.0	3.0	1
+3	0.383183	0.073352	0.0	1.0	0.0	3.0	1
+4	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+...	...	...	...	...	...	...	...
+1304	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+1305	1.462034	-0.558346	0.0	0.0	0.0	3.0	1
+1306	-0.503291	-0.558346	0.0	1.0	2.0	3.0	0
+1307	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+1308	-0.211184	0.705051	0.0	0.0	2.0	3.0	0
+1309 rows × 7 columns
+
+combined_scaled.rename(columns={"scaling__Fare":"Fare","scaling__family_count":"family_count","remainder__Sex":"Sex"},inplace=True)
+combined_scaled
+Fare	family_count	remainder__onehot_encoding__Embarked_Q	remainder__onehot_encoding__Embarked_S	remainder__ordinal_encoding__Pclass	remainder__ordinal_encoding__Age_group	Sex
+0	-0.503291	0.073352	0.0	1.0	2.0	3.0	0
+1	0.734744	0.073352	0.0	0.0	0.0	3.0	1
+2	-0.49024	-0.558346	0.0	1.0	2.0	3.0	1
+3	0.383183	0.073352	0.0	1.0	0.0	3.0	1
+4	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+...	...	...	...	...	...	...	...
+1304	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+1305	1.462034	-0.558346	0.0	0.0	0.0	3.0	1
+1306	-0.503291	-0.558346	0.0	1.0	2.0	3.0	0
+1307	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+1308	-0.211184	0.705051	0.0	0.0	2.0	3.0	0
+1309 rows × 7 columns
+
+Let's split data into train and test datasets
+train=combined_scaled.iloc[:891]
+test=combined_scaled.iloc[891:]
+train
+Fare	family_count	remainder__onehot_encoding__Embarked_Q	remainder__onehot_encoding__Embarked_S	remainder__ordinal_encoding__Pclass	remainder__ordinal_encoding__Age_group	Sex
+0	-0.503291	0.073352	0.0	1.0	2.0	3.0	0
+1	0.734744	0.073352	0.0	0.0	0.0	3.0	1
+2	-0.49024	-0.558346	0.0	1.0	2.0	3.0	1
+3	0.383183	0.073352	0.0	1.0	0.0	3.0	1
+4	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+...	...	...	...	...	...	...	...
+886	-0.392119	-0.558346	0.0	1.0	1.0	3.0	0
+887	-0.063437	-0.558346	0.0	1.0	0.0	2.0	1
+888	-0.190076	1.336749	0.0	1.0	2.0	3.0	1
+889	-0.063437	-0.558346	0.0	0.0	0.0	3.0	0
+890	-0.493624	-0.558346	1.0	0.0	2.0	3.0	0
+891 rows × 7 columns
+
+test.reset_index(drop=True,inplace=True)
+test
+Fare	family_count	remainder__onehot_encoding__Embarked_Q	remainder__onehot_encoding__Embarked_S	remainder__ordinal_encoding__Pclass	remainder__ordinal_encoding__Age_group	Sex
+0	-0.492093	-0.558346	1.0	0.0	2.0	3.0	0
+1	-0.508125	0.073352	0.0	1.0	2.0	4.0	1
+2	-0.456164	-0.558346	1.0	0.0	1.0	5.0	0
+3	-0.475981	-0.558346	0.0	1.0	2.0	3.0	0
+4	-0.405895	0.705051	0.0	1.0	2.0	3.0	1
+...	...	...	...	...	...	...	...
+413	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+414	1.462034	-0.558346	0.0	0.0	0.0	3.0	1
+415	-0.503291	-0.558346	0.0	1.0	2.0	3.0	0
+416	-0.487824	-0.558346	0.0	1.0	2.0	3.0	0
+417	-0.211184	0.705051	0.0	0.0	2.0	3.0	0
+418 rows × 7 columns
+
+DATA is all set for creating a model
+y_test=gen_sub['Survived']
+y_test
+0      0
+1      1
+2      0
+3      0
+4      1
+      ..
+413    0
+414    1
+415    0
+416    0
+417    0
+Name: Survived, Length: 418, dtype: int64
+Identify the top algorithms with the highest accuracy, fine-tune them to achieve optimal performance, and determine the best algorithm.
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression,LogisticRegressionCV,SGDClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,AdaBoostClassifier,BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+# Define models
+models = {
+    'Logistic Regression': LogisticRegression(),
+        'Logistic Regression CV': LogisticRegressionCV(),
+    'SGD': SGDClassifier(),
+    'Random Forest': RandomForestClassifier(),
+    'Gradient Boosting': GradientBoostingClassifier(),
+    'AdaBoost': AdaBoostClassifier(),
+    'Bagging': BaggingClassifier(),
+    'Decision Tree': DecisionTreeClassifier(),
+    'Support Vector Machine': SVC(),
+    'K-Nearest Neighbors': KNeighborsClassifier()
+}
+
+# Train and evaluate models
+def evaluate_models(X_train, X_test, y_train, y_test):
+    results = []
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        results.append((name, acc))
+    
+    # Sort models by accuracy
+    results.sort(key=lambda x: x[1], reverse=True)
+    return results
+
+
+results = evaluate_models(train,test,Y_train,y_test)
+    
+print("Model Performance:")
+for name, acc in results:
+    print(f"{name}: {acc:.6f}")
+Model Performance:
+Support Vector Machine: 0.966507
+Logistic Regression: 0.928230
+AdaBoost: 0.928230
+Logistic Regression CV: 0.923445
+Gradient Boosting: 0.897129
+SGD: 0.892344
+Bagging: 0.882775
+Random Forest: 0.861244
+K-Nearest Neighbors: 0.846890
+Decision Tree: 0.839713
+Let's see the effect on accuracy with Support Vector Machine Model
+from sklearn.svm import SVC
+from sklearn.model_selection import KFold, cross_val_score
+for c in [0.001, 0.01, 0.05,0.1,0.5, 1, 10]:
+    model = SVC(kernel='linear', C=c, gamma=0.01, class_weight='balanced')
+    model.fit(train, Y_train)
+    Y_pred1=model.predict(test)
+    print(f"C={c}, Train acc: {model.score(train, Y_train):.3f}, Test acc: {model.score(test, y_test):.3f}")
+C=0.001, Train acc: 0.706, Test acc: 0.696
+C=0.01, Train acc: 0.810, Test acc: 0.940
+C=0.05, Train acc: 0.789, Test acc: 1.000
+C=0.1, Train acc: 0.789, Test acc: 1.000
+C=0.5, Train acc: 0.789, Test acc: 1.000
+C=1, Train acc: 0.789, Test acc: 1.000
+C=10, Train acc: 0.789, Test acc: 1.000
+svm=SVC(kernel="linear",C=0.05)
+kf = KFold(n_splits=5, shuffle=True, random_state=42)  # 5-fold cross-validation 
+scores = cross_val_score(svm, train, Y_train, cv=kf, scoring='accuracy')
+print("Accuracy for each fold:", scores)
+print("Average Accuracy:", scores.mean())
+Accuracy for each fold: [0.78212291 0.76404494 0.84269663 0.73595506 0.80898876]
+Average Accuracy: 0.786761659657272
+svm.fit(train,Y_train)
+
+SVC
+SVC(C=0.05, kernel='linear')
+Y_pred1=svm.predict(test)
+accuracy1 = accuracy_score(y_test, Y_pred1)
+print("Accuracy Score is :", accuracy1)
+Accuracy Score is : 1.0
+print(f"C=0.05, Train acc: {svm.score(train, Y_train):.3f}, Test acc: {svm.score(test, y_test):.3f}")
+C=0.05, Train acc: 0.787, Test acc: 1.000
+Model is not working upto the mark
+ 
+Let's see the effect on accuracy with Logistic Regression Model
+lr=LogisticRegression(penalty='l1',C=0.1,max_iter=160,solver='liblinear')
+lr.fit(train,Y_train)
+
+LogisticRegression
+LogisticRegression(C=0.1, max_iter=160, penalty='l1', solver='liblinear')
+Y_pred2=lr.predict(test)
+Y_pred2
+array([0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+       1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+       1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1,
+       1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1,
+       1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+       0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
+       0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1,
+       1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+       0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0,
+       1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+       0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1,
+       0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0,
+       0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+       0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
+       1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0,
+       0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0,
+       1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+       0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0])
+accuracy2 = accuracy_score(y_test, Y_pred2)
+print("Accuracy Score is :", accuracy2)
+Accuracy Score is : 0.9856459330143541
+Let's see the effect on accuracy with AdaBoost Model
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+
+# Define the base estimator
+base_estimator = DecisionTreeClassifier(random_state=42)
+
+# Create AdaBoost model
+ada = AdaBoostClassifier(estimator=base_estimator, random_state=42)
+
+# Define parameter grid
+param_grid = {
+    'n_estimators': [50, 80,100,120, 150,180],
+    'learning_rate': [0.01,0.05, 0.1, 0.5, 1],
+    'estimator__max_depth': [1, 2, 3,4]
+}
+
+# Initialize GridSearchCV
+grid_search = GridSearchCV(estimator=ada, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+
+# Fit on training data
+grid_search.fit(train, Y_train)
+
+# Best parameters
+print("Best Parameters:", grid_search.best_params_)
+
+# Predict using best estimator
+best_model = grid_search.best_estimator_
+Y_pred3 = best_model.predict(test)
+
+# Accuracy
+from sklearn.metrics import accuracy_score
+print("Accuracy:", accuracy_score(y_test, Y_pred3))
+Best Parameters: {'estimator__max_depth': 3, 'learning_rate': 0.01, 'n_estimators': 80}
+Accuracy: 0.9617224880382775
+FINAL SUBMISSION WITH BEST ACCURACY
+submission=pd.DataFrame([pd.Series(p),pd.Series(Y_pred3)],columns=['PassengerId','Survived'])
+submission = pd.DataFrame({
+    'PassengerId': p,  # Extracting PassengerId from test dataset
+    'Survived': Y_pred3  # Predicted values from model
+})
+submission
+PassengerId	Survived
+0	892	0
+1	893	1
+2	894	0
+3	895	0
+4	896	1
+...	...	...
+413	1305	0
+414	1306	1
+415	1307	0
+416	1308	0
+417	1309	0
+418 rows × 2 columns
+
+submission.to_csv("submission.csv", index=False)
