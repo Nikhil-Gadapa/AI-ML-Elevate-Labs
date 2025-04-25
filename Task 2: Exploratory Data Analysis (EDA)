@@ -1,0 +1,74 @@
+# 1. IMPORT LIBRARIES
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# For interactive visuals (optional)
+# import plotly.express as px
+
+# 2. LOAD DATASET
+df = pd.read_csv('titanic.csv')
+
+# 3. SUMMARY STATISTICS
+display(df.describe(include='all').round(2))
+
+# 4. HISTOGRAMS FOR NUMERIC FEATURES
+numeric_cols = ['Age', 'Fare', 'SibSp', 'Parch']
+df[numeric_cols].hist(bins=20, figsize=(10, 8), layout=(2, 2), color='steelblue', edgecolor='black')
+plt.suptitle('Histograms of Numeric Features')
+plt.tight_layout()
+plt.show()
+
+# 5. BOXPLOTS TO DETECT OUTLIERS
+plt.figure(figsize=(12, 4))
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(1, 4, i)
+    sns.boxplot(y=df[col], color='lightgreen')
+    plt.title(col)
+plt.suptitle('Boxplots of Numeric Features')
+plt.tight_layout()
+plt.show()
+
+# 6. CORRELATION MATRIX + HEATMAP
+corr = df[numeric_cols + ['Survived']].corr()
+plt.figure(figsize=(6, 5))
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', linewidths=.5)
+plt.title('Correlation Matrix')
+plt.show()
+
+# 7. PAIRPLOT FOR FEATURE RELATIONSHIPS
+sns.pairplot(df[['Age', 'Fare', 'SibSp', 'Parch', 'Survived']], hue='Survived', palette='muted')
+plt.suptitle('Pairwise Relationships by Survival', y=1.02)
+plt.show()
+
+# 8. IDENTIFY PATTERNS & BASIC INFERENCES
+#   • Age skew: df['Age'].skew()
+#   • Fare skew: df['Fare'].skew()
+#   • Survival by class:
+survival_by_pclass = df.groupby('Pclass')['Survived'].mean().sort_index()
+print("Survival rate by Pclass:\n", (survival_by_pclass * 100).round(1))
+
+# 9. OPTIONAL INTERACTIVE VISUAL (Plotly)
+# fig = px.histogram(df, x='Age', color='Survived', nbins=30, title='Age Distribution by Survival')
+# fig.show()
+What this does:
+Imports all necessary libraries.
+
+Loads the Titanic CSV into df.
+
+Displays a unified summary (count, mean, std, min, max, unique, top, freq).
+
+Draws Histograms for each numeric column to reveal distribution and skew.
+
+Draws Boxplots to spot outliers at a glance.
+
+Computes & Plots the correlation matrix to see which features move together.
+
+Plots a Pairplot colored by survival to visualize bivariate relationships.
+
+Prints a key inference (survival rate by passenger class).
+
+(Optional) Offers a Plotly example for interactive exploration.
+
+Use this as your eda.ipynb or eda.py, commit it to GitHub along with titanic.csv, add a short README.md explaining each step, and submit your repo link.
