@@ -1,0 +1,164 @@
+1. Import and Preprocess the Dataset
+Use any House Price Dataset (or any dataset where regression makes sense — continuous target variable).
+
+Clean the data: remove missing values, unnecessary columns, etc.
+
+python
+Copy
+Edit
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv('path/to/your/dataset.csv')
+
+# Basic cleaning
+df = df.dropna()
+print(df.head())
+2. Split Data into Train-Test Sets
+Separate features (X) and target (y).
+
+Split 80% training, 20% testing using train_test_split.
+
+python
+Copy
+Edit
+from sklearn.model_selection import train_test_split
+
+X = df[['Feature1', 'Feature2']]  # replace with your features
+y = df['Target']  # replace with your target column
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+3. Fit a Linear Regression Model
+Use LinearRegression from sklearn.linear_model.
+
+Train (fit) the model on your training data.
+
+python
+Copy
+Edit
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+4. Evaluate the Model
+Predict on test set.
+
+Calculate:
+
+MAE (Mean Absolute Error)
+
+MSE (Mean Squared Error)
+
+R² Score (Coefficient of Determination)
+
+python
+Copy
+Edit
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+y_pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, y_pred))
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("R2 Score:", r2_score(y_test, y_pred))
+5. Plot Regression Line and Interpret Coefficients
+If it’s Simple Linear Regression (only 1 feature), you can plot.
+
+Plot actual vs predicted values.
+
+python
+Copy
+Edit
+import matplotlib.pyplot as plt
+
+# If only 1 feature
+plt.scatter(X_test, y_test, color='blue', label='Actual')
+plt.plot(X_test, y_pred, color='red', label='Predicted')
+plt.xlabel('Feature')
+plt.ylabel('Target')
+plt.title('Linear Regression')
+plt.legend()
+plt.show()
+Print and interpret the coefficients:
+
+python
+Copy
+Edit
+print("Intercept:", model.intercept_)
+print("Coefficients:", model.coef_)
+🎯 Interview Questions Answers (Short Notes):
+Assumptions of Linear Regression:
+
+Linearity, Independence, Homoscedasticity (equal variance), Normal distribution of errors, No multicollinearity.
+
+Interpret the Coefficients:
+
+Each coefficient shows the change in the target variable for a unit change in that feature, keeping others constant.
+
+R² Score Significance:
+
+How much variability in the target is explained by the model (1 = perfect fit, 0 = no fit).
+
+MSE vs MAE:
+
+Prefer MSE when you want to penalize larger errors more heavily.
+
+Detect Multicollinearity:
+
+Use VIF (Variance Inflation Factor) or check correlation matrix.
+
+Simple vs Multiple Regression:
+
+Simple: 1 independent variable; Multiple: 2 or more independent variables.
+
+Linear Regression for Classification?
+
+No, it's better to use Logistic Regression for classification tasks.
+
+Violating Assumptions Effects:
+
+Can lead to biased, inefficient, and invalid predictions.
+
+📂 Submission Guidelines:
+Create a new GitHub repository.
+
+Include:
+
+Your Python code file (.ipynb or .py)
+
+Dataset (if small) or link to dataset.
+
+Screenshots (if needed).
+
+README.md file (describe your approach and answers to interview questions).
+
+⚡ Template for GitHub README.md:
+markdown
+Copy
+Edit
+# Linear Regression - AI & ML Internship
+
+## Objective
+- Implement Simple and Multiple Linear Regression.
+- Evaluate model performance and interpret results.
+
+## Dataset
+- [Dataset Name or Link]
+
+## Steps
+1. Imported and cleaned dataset.
+2. Split into training and testing sets.
+3. Trained Linear Regression model.
+4. Evaluated using MAE, MSE, and R² Score.
+5. Plotted regression line and interpreted coefficients.
+
+## Interview Questions Answers
+- (Write your short answers here)
+
+## Libraries Used
+- pandas
+- sklearn
+- matplotlib
+
+## Author
+- [Your Name]
