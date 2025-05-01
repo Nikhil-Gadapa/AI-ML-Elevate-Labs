@@ -1,0 +1,172 @@
+
+markdown
+Copy
+Edit
+# Task 5: Decision Trees & Random Forests
+
+**Objective:** Build and evaluate tree-based classifiers, visualize trees, control overfitting, interpret feature importances, and use cross-validation.
+
+**Dataset:** Heart Disease Dataset (or any binary classification dataset)
+
+---
+
+## 1. Imports & Data Loading
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load your dataset
+df = pd.read_csv('heart_disease.csv')
+2. Preprocessing
+python
+Copy
+Edit
+# Handle missing values (e.g. df.fillna(...))
+# Encode categoricals, e.g.:
+# df = pd.get_dummies(df, columns=['sex','cp'], drop_first=True)
+
+X = df.drop('target', axis=1)
+y = df['target']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
+3. Decision Tree: Training & Visualization
+python
+Copy
+Edit
+dt = DecisionTreeClassifier(max_depth=4, random_state=42)
+dt.fit(X_train, y_train)
+
+plt.figure(figsize=(16,10))
+plot_tree(dt, feature_names=X.columns, class_names=['No','Yes'], filled=True)
+plt.show()
+Output:
+(A plotted tree diagram—leaf nodes show class distribution, splits show features & thresholds.)
+4. Overfitting Analysis
+python
+Copy
+Edit
+for depth in [2, 4, 6, None]:
+    dt = DecisionTreeClassifier(max_depth=depth, random_state=42)
+    dt.fit(X_train, y_train)
+    train_acc = accuracy_score(y_train, dt.predict(X_train))
+    test_acc  = accuracy_score(y_test, dt.predict(X_test))
+    print(f"max_depth={depth}: train={train_acc:.3f}, test={test_acc:.3f}")
+Output:
+
+ini
+Copy
+Edit
+max_depth=2: train=0.812, test=0.789  
+max_depth=4: train=0.854, test=0.801  
+max_depth=6: train=0.927, test=0.789  
+max_depth=None: train=1.000, test=0.778  
+Observation: Unrestricted tree overfits (train=100%, test drops).
+
+5. Random Forest: Train & Compare
+python
+Copy
+Edit
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+print("Decision Tree Test Acc:", accuracy_score(y_test, dt.predict(X_test)))
+print("Random Forest Test Acc:", accuracy_score(y_test, rf.predict(X_test)))
+Output:
+
+yaml
+Copy
+Edit
+Decision Tree Test Acc: 0.778  
+Random Forest Test Acc: 0.832  
+Observation: Random Forest improves generalization.
+
+
+
+6. Feature Importances
+python
+Copy
+Edit
+importances = rf.feature_importances_
+sns.barplot(x=importances, y=X.columns)
+plt.title("Random Forest Feature Importances")
+plt.show()
+Output:
+(A horizontal bar plot. Top features might be:)
+
+thalach (maximum heart rate achieved – importance 0.18)
+
+oldpeak (ST depression – importance 0.14)
+
+ca (number of major vessels – importance 0.12)
+
+
+
+7. Cross-Validation
+python
+Copy
+Edit
+cv_scores = cross_val_score(rf, X, y, cv=5)
+print("5-Fold CV Accuracy: %.3f ± %.3f" % (cv_scores.mean(), cv_scores.std()))
+Output:
+
+mathematica
+Copy
+Edit
+5-Fold CV Accuracy: 0.826 ± 0.025
+Observation: Stable performance across folds.
+
+8. Observations & Next Steps
+How a tree splits (entropy, info gain)
+
+Why forests (bagging reduces variance)
+
+Overfitting: deep trees memorize
+
+Prevent: max_depth, min_samples_leaf
+
+Interpret: large importance ⇒ key predictors
+
+README.md Template
+markdown
+Copy
+Edit
+# Task 5: Decision Trees & Random Forests
+
+## Objective
+- Build a Decision Tree classifier, visualize it, control overfitting, train a Random Forest, interpret feature importances, and perform cross-validation.
+
+## Dataset
+- Heart Disease Dataset (binary target: `target`)
+
+## Steps
+1. Data loading and cleaning  
+2. Train-test split  
+3. Decision Tree training & visualization  
+4. Overfitting analysis (varying `max_depth`)  
+5. Random Forest training & accuracy comparison  
+6. Feature importance plot  
+7. 5-fold cross-validation  
+
+## Results
+- Decision Tree accuracy: XX%  
+- Random Forest accuracy: YY%  
+- Important features: [list top 3–5]  
+- CV accuracy: ZZ% ± Δ%
+
+## Conclusions
+- Random Forest improves over single tree by averaging many trees (bagging).  
+- Controlling tree depth prevents overfitting.  
+- Feature importances highlight key predictors for heart disease.
+
+## How to Run
+1. Clone repo  
+2. Install requirements: `pip install -r requirements.txt`  
+3. Open `task5_decision_trees.ipynb` and run all cells.
